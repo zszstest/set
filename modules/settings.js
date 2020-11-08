@@ -1,7 +1,9 @@
 const Settings = function () {
     let playerNumberElement = null;
     let playerInputsContainer = null;
-    let gameLevelsContainer = null;
+    let gameModesElement = null;
+    let gameLevelsElement = null;
+    let isSetCheckboxElement = null;
 
     this.maintainPlayerNameInputs = function (playerNumber, playerInputsContainer) {
         var playerInputs = playerInputsContainer.getElementsByTagName("input");
@@ -27,7 +29,9 @@ const Settings = function () {
     this.init = function () {
         playerNumberElement = document.getElementById("playerNumber");
         playerInputsContainer = document.getElementById(PLAYER_INPUTS_ID);
-        gameLevelsContainer = document.getElementById(GAME_LEVELS_ID);
+        gameModesElement = document.getElementById(GAME_MODES_ID);
+        gameLevelsElement = document.getElementById(GAME_LEVELS_ID);
+        isSetCheckboxElement = document.getElementById(IS_SET_CHECKBOX_ID);
 
         playerNumberElement.setAttribute(
             "value",
@@ -36,6 +40,14 @@ const Settings = function () {
 
         playerNumberElement.addEventListener("change", function (event) {
             maintainPlayerNameInputs(event.target.value, playerInputsContainer);
+        });
+
+        gameModesElement.addEventListener("change", function (event) {
+            if (event.target.value === "competition") {
+                isSetCheckboxElement.setAttribute("checked", "checked");
+            } else {
+                isSetCheckboxElement.removeAttribute('checked');
+            }
         });
     };
 

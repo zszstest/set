@@ -29,12 +29,27 @@
             <div class="row">
                 <section id="gameSettings" class="col-sm-6">
                     <div class="row">
+                        <h2>Settings</h2>
+                    </div>
+
+                    <div class="row" style="margin: 10px 0">
                         <div class="col-sm-4">
                             <input type="number" value="1" max="10" min="1" id="playerNumber">
                         </div>
 
                         <div class="col-sm-8" id="playerInputs">
                             <input type="text" name="" id="" value="Player1">
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <p>Please select game mode:</p>
+
+                        <div class="col-sm-12" id="gameModes">
+                            <input type="radio" id="practice" name="gameMode" value="practice" checked>
+                            <label for="practice">Practice</label><br>
+                            <input type="radio" id="competition" name="gameMode" value="competition">
+                            <label for="competition">Competition</label><br>
                         </div>
                     </div>
 
@@ -47,6 +62,19 @@
                             <input type="radio" id="advanced" name="gameLevel" value="advanced">
                             <label for="advanced">Advanced</label><br>
                         </div>
+                    </div>
+
+                    <div class="row">
+                        <h2>Further settings</h2>
+                    </div>
+
+                    <div>
+                        <input type="checkbox" id="isSetCheckbox" name="isSetCheckbox">
+                        <label for="isSetCheckbox">Do you want to use Show Is Set button?</label><br>
+                        <input type="checkbox" id="isWhereSetCheckbox" name="isSetCheckbox">
+                        <label for="isWhereSetCheckbox">Do you want to use Show Where Set button?</label><br>
+                        <input type="checkbox" id="isAutoSupplementCheckbox" name="isAutoSupplementCheckbox">
+                        <label for="isAutoSupplementCheckbox">Do you want to use Auto Supplement button?</label>
                     </div>
 
                     <div class="row">
