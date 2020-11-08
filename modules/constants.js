@@ -13,3 +13,9 @@ const IS_WHERE_SET_CHECKBOX_ID = "isWhereSetCheckbox";
 
 const PLAYER_INPUTS_ID = "playerInputs";
 const PLAYER_NUMBER_ID = "playerNumber";
+
+const GAME_LEVEL_BEGINNER = "beginner";
+const GAME_LEVEL_ADVANCED = "advanced";
+
+const GAME_MODE_PRACTICE = "practice";
+const GAME_MODE_COMPETITION = "competition";

@@ -1,3 +1,3 @@
-var Player = function () {
-    this.name = null;
+var Player = function (name) {
+    this.name = name;
 };

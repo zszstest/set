@@ -61,6 +61,7 @@ const Settings = function () {
                     "checked",
                     "checked"
                 );
+
                 isAutoSupplementCheckboxElement.setAttribute(
                     "disabled",
                     "disabled"
@@ -68,13 +69,16 @@ const Settings = function () {
 
                 isSetCheckboxElement.setAttribute("checked", "checked");
                 isSetCheckboxElement.setAttribute("disabled", "disabled");
+
                 isWhereSetCheckboxElement.setAttribute("checked", "checked");
                 isWhereSetCheckboxElement.setAttribute("disabled", "disabled");
             } else {
                 isAutoSupplementCheckboxElement.removeAttribute("checked");
                 isAutoSupplementCheckboxElement.removeAttribute("disabled");
+
                 isSetCheckboxElement.removeAttribute("checked");
                 isSetCheckboxElement.removeAttribute("disabled");
+
                 isWhereSetCheckboxElement.removeAttribute("checked");
                 isWhereSetCheckboxElement.removeAttribute("disabled");
             }
@@ -82,15 +86,21 @@ const Settings = function () {
     };
 
     this.createConfig = function () {
-        const config = new Config();
-
-        config.gameLevel = this.getGameLevel();
-
-        return config;
+        return new Config(this.getPlayers(), this.getGameLevel(), this.getGameMode());
     };
 
     this.getGameLevel = function () {
         return document.querySelector("input[name=gameLevel]:checked").value;
+    };
+
+    this.getGameMode = function () {
+        return document.querySelector("input[name=gameMode]:checked").value;
+    };
+
+    this.getPlayers = function () {
+        var playerInputs = playerInputsContainer.getElementsByTagName("input");
+
+        return Array.from(playerInputs).map(playerInput => new Player(playerInput.value));
     };
 
     this.init();
