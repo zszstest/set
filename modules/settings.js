@@ -1,22 +1,18 @@
 const Settings = function () {
-    let gameLevelsElement = null;
-    let gameModesElement = null;
-    let isAutoSupplementCheckboxElement = null;
-    let isSetCheckboxElement = null;
-    let isWhereSetCheckboxElement = null;
-    let playerInputsContainer = null;
-    let playerNumberElement = null;
-
     this.maintainPlayerNameInputs = function (
         playerNumber,
         playerInputsContainer
     ) {
-        var playerInputs = playerInputsContainer.getElementsByTagName("input");
+        var playerInputs = template.playerInputsContainer.getElementsByTagName(
+            "input"
+        );
 
         if (playerInputs.length > playerNumber) {
             while (playerInputs.length > playerNumber) {
-                playerInputsContainer.removeChild(
-                    playerInputsContainer.childNodes[playerInputs.length]
+                template.playerInputsContainer.removeChild(
+                    template.playerInputsContainer.childNodes[
+                        playerInputs.length
+                    ]
                 );
             }
         } else if (playerInputs.length < playerNumber) {
@@ -26,67 +22,63 @@ const Settings = function () {
                 x.setAttribute("type", "text");
                 x.setAttribute("value", "Player" + (playerInputs.length + 1));
 
-                playerInputsContainer.appendChild(x);
+                template.playerInputsContainer.appendChild(x);
             }
         }
     };
 
     this.init = function () {
-        gameLevelsElement = document.getElementById(GAME_LEVELS_ID);
-        gameModesElement = document.getElementById(GAME_MODES_ID);
-        isAutoSupplementCheckboxElement = document.getElementById(
-            IS_AUTO_SUPLEMENT_CHECKBOX_ID
-        );
-
-        isSetCheckboxElement = document.getElementById(IS_SET_CHECKBOX_ID);
-        isWhereSetCheckboxElement = document.getElementById(
-            IS_WHERE_SET_CHECKBOX_ID
-        );
-
-        playerInputsContainer = document.getElementById(PLAYER_INPUTS_ID);
-        playerNumberElement = document.getElementById(PLAYER_NUMBER_ID);
-
-        playerNumberElement.setAttribute(
+        template.playerNumberElement.setAttribute(
             "value",
             defaultSettings.defaultPlayerNumber
         );
 
-        playerNumberElement.addEventListener("change", (event) => {
-            this.maintainPlayerNameInputs(event.target.value, playerInputsContainer);
+        template.playerNumberElement.addEventListener("change", (event) => {
+            this.maintainPlayerNameInputs(
+                event.target.value,
+                template.playerInputsContainer
+            );
         });
 
-        gameModesElement.addEventListener("change", function (event) {
+        template.gameModesElement.addEventListener("change", function (event) {
             if (event.target.value === "competition") {
-                isAutoSupplementCheckboxElement.setAttribute(
+                template.isAutoSupplementCheckboxElement.setAttribute(
                     "checked",
                     "checked"
                 );
 
-                isAutoSupplementCheckboxElement.setAttribute(
+                template.isAutoSupplementCheckboxElement.setAttribute(
                     "disabled",
                     "disabled"
                 );
 
-                isSetCheckboxElement.setAttribute("checked", "checked");
-                isSetCheckboxElement.setAttribute("disabled", "disabled");
+                template.isSetCheckboxElement.setAttribute("checked", "checked");
+                template.isSetCheckboxElement.setAttribute("disabled", "disabled");
 
-                isWhereSetCheckboxElement.setAttribute("checked", "checked");
-                isWhereSetCheckboxElement.setAttribute("disabled", "disabled");
+                template.isWhereSetCheckboxElement.setAttribute("checked", "checked");
+                template.isWhereSetCheckboxElement.setAttribute("disabled", "disabled");
             } else {
-                isAutoSupplementCheckboxElement.removeAttribute("checked");
-                isAutoSupplementCheckboxElement.removeAttribute("disabled");
+                template.isAutoSupplementCheckboxElement.removeAttribute("checked");
+                template.isAutoSupplementCheckboxElement.removeAttribute("disabled");
 
-                isSetCheckboxElement.removeAttribute("checked");
-                isSetCheckboxElement.removeAttribute("disabled");
+                template.isSetCheckboxElement.removeAttribute("checked");
+                template.isSetCheckboxElement.removeAttribute("disabled");
 
-                isWhereSetCheckboxElement.removeAttribute("checked");
-                isWhereSetCheckboxElement.removeAttribute("disabled");
+                template.isWhereSetCheckboxElement.removeAttribute("checked");
+                template.isWhereSetCheckboxElement.removeAttribute("disabled");
             }
         });
     };
 
     this.createConfig = function () {
-        return new Config(this.getPlayers(), this.getGameLevel(), this.getGameMode());
+        return new Config(
+            this.getPlayers(),
+            this.getGameLevel(),
+            this.getGameMode(),
+            this.isSetButton(),
+            this.isWhereSetButton(),
+            this.isAutoSupplementButton()
+        );
     };
 
     this.getGameLevel = function () {
@@ -97,10 +89,26 @@ const Settings = function () {
         return document.querySelector("input[name=gameMode]:checked").value;
     };
 
-    this.getPlayers = function () {
-        var playerInputs = playerInputsContainer.getElementsByTagName("input");
+    this.isAutoSupplementButton = function () {
+        return !!document.querySelector("input[name=isAutoSupplementCheckbox]:checked");
+    };
 
-        return Array.from(playerInputs).map(playerInput => new Player(playerInput.value));
+    this.isSetButton = function () {
+        return !!document.querySelector("input[name=isSetCheckbox]:checked");
+    };
+
+    this.isWhereSetButton = function () {
+        return !!document.querySelector("input[name=isWhereSetCheckbox]:checked");
+    };
+
+    this.getPlayers = function () {
+        var playerInputs = template.playerInputsContainer.getElementsByTagName(
+            "input"
+        );
+
+        return Array.from(playerInputs).map(
+            (playerInput) => new Player(playerInput.value)
+        );
     };
 
     this.init();

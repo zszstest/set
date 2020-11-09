@@ -14,6 +14,7 @@
     <script src="modules/card.js"></script>
     <script src="modules/deck.js"></script>
     <script src="modules/player.js"></script>
+    <script src="modules/template.js"></script>
     <script src="modules/settings.js"></script>
     <script src="modules/game-engine.js"></script>
 </head>
@@ -23,11 +24,7 @@
         <div class="container">
             <h1>Set Game</h1>
 
-            <section id="gameRules">
-
-            </section>
-
-            <div class="row">
+            <div class="row" id="gameSettingsDiv">
                 <section id="gameSettings" class="col-sm-6">
                     <div class="row">
                         <h2>Settings</h2>
@@ -74,7 +71,7 @@
 
                         <label for="isSetCheckbox">Do you want to use Show Is Set button?</label><br>
 
-                        <input type="checkbox" id="isWhereSetCheckbox" name="isSetCheckbox">
+                        <input type="checkbox" id="isWhereSetCheckbox" name="isWhereSetCheckbox">
 
                         <label for="isWhereSetCheckbox">Do you want to use Show Where Set button?</label><br>
 
@@ -82,19 +79,31 @@
 
                         <label for="isAutoSupplementCheckbox">Do you want to use Auto Supplement button?</label>
                     </div>
-
-                    <div class="row">
-                        <button type="button" class="btn btn-primary" onclick="start()">Start</button>
-                    </div>
                 </section>
 
-                <section class="col-sm-6" id="gameArea">
+                <section class="col-sm-6" id="gameSettingsImage">
 
                 </section>
+
+                <div class="row">
+                    <button type="button" class="btn btn-primary" onclick="start()">Start</button>
+                </div>
             </div>
 
-            <div class="row">
-                <section id="gameAreaTest" class="hide"></section>
+            <div class="d-none m-2" id="gameAreaDiv">
+                <header class="m-2" id="gameAreaHeader">
+                    
+                </header>
+
+                <div class="row m-2">
+                    <div class="col-sm-6" id="gamePlayers">
+
+                    </div>
+
+                    <div class="col-sm-6" >
+                        <section id="gameArea" class=""></section>
+                    </div>
+                </div>
             </div>
         </div>
     </main>

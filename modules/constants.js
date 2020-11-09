@@ -4,6 +4,7 @@ const CARD_NUMBERS = [1, 2, 3];
 const CARD_SHAPES = ["D", "S", "P"];
 
 const GAME_AREA_ID = "gameArea";
+const GAME_AREA_HEADER_ID = "gameAreaHeader";
 const GAME_LEVELS_ID = "gameLevels";
 const GAME_MODES_ID = "gameModes";
 
@@ -19,3 +20,6 @@ const GAME_LEVEL_ADVANCED = "advanced";
 
 const GAME_MODE_PRACTICE = "practice";
 const GAME_MODE_COMPETITION = "competition";
+
+const GAME_SETTINGS_DIV_ID = "gameSettingsDiv";
+const GAME_AREA_DIV_ID = "gameAreaDiv";
