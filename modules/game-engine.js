@@ -1,4 +1,8 @@
 const GameEngine = function () {
+    this.deck = null;
+
+    this.cardsOnBoard = null;
+
     this.init = function () {
         template.createGameArenaContainer();
     };
@@ -10,13 +14,13 @@ const GameEngine = function () {
             config.isAutoSupplementButton
         );
 
-        const deck = new Deck(config.gameLevel, 3);
+        this.deck = new Deck(config.gameLevel, 3);
 
-        deck.log();
+        this.deck.log();
 
-        let cardsOnBoard = deck.handlingOut(12);
+        this.cardsOnBoard = this.deck.handlingOut(12);
 
-        cardsOnBoard.forEach((card) => {
+        this.cardsOnBoard.forEach((card) => {
             var img = document.createElement("img");
 
             img.setAttribute("width", 120);
@@ -24,6 +28,93 @@ const GameEngine = function () {
 
             template.gameArenaContainer.appendChild(img);
         });
+
+        const sets = findSets(generate3Cards(Array.from(this.cardsOnBoard)));
+
+        console.log(sets);
+    };
+
+    const findSets = function (cardsMap) {
+        const cardSets = [];
+
+        Array.from(cardsMap.values()).forEach((cards) => {
+            console.log(cards);
+            if (checkSetOnCards(cards)) {
+                cardSets.push(cards);
+            }
+        });
+
+        return cardSets;
+    };
+
+    const checkSetOnCards = function (cards) {
+        if (
+            areEqualOrDifferent([
+                cards[0].number,
+                cards[1].number,
+                cards[2].number,
+            ]) &&
+            areEqualOrDifferent([
+                cards[0].content,
+                cards[1].content,
+                cards[2].content,
+            ]) &&
+            areEqualOrDifferent([
+                cards[0].color,
+                cards[1].color,
+                cards[2].color,
+            ]) &&
+            areEqualOrDifferent([
+                cards[0].shape,
+                cards[1].shape,
+                cards[2].shape,
+            ])
+        ) {
+            return true;
+        } else {
+            return false;
+        }
+    };
+
+    const areEqualOrDifferent = function (values) {
+        return (
+            (values[0] === values[1] &&
+                values[0] === values[2] &&
+                values[1] === values[2]) ||
+            (values[0] !== values[1] &&
+                values[0] !== values[2] &&
+                values[1] !== values[2])
+        );
+    };
+
+    const generate3Cards = function (cards) {
+        const threeCards = new Map();
+
+        cards.forEach((card1) =>
+            cards.forEach((card2) =>
+                cards.forEach((card3) => {
+                    if (
+                        card1.name !== card2.name &&
+                        card1.name !== card3.name &&
+                        card2.name !== card3.name
+                    ) {
+                        const selectedCards = [card1, card2, card3];
+                        const sortedSelectedCards = selectedCards.sort(
+                            (c1, c2) => (c1.name < c2.name ? 1 : -1)
+                        );
+                        const name = sortedSelectedCards
+                            .map((c) => c.name)
+                            .join("-");
+
+                        threeCards.set(name, selectedCards);
+                    }
+                })
+            )
+        );
+
+        console.log(threeCards);
+
+        return threeCards;
     };
 
     this.init();
