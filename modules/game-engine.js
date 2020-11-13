@@ -1,7 +1,8 @@
 const GameEngine = function () {
     this.deck = null;
-
     this.cardsOnBoard = null;
+
+    let selectedCards = [];
 
     this.init = function () {
         template.createGameArenaContainer();
@@ -23,8 +24,27 @@ const GameEngine = function () {
         this.cardsOnBoard.forEach((card) => {
             var img = document.createElement("img");
 
+            img.addEventListener("click", (event) => {
+                if (selectedCards.length < 3) {
+                    if (selectedCards.includes(card)) {
+                        selectedCards = selectedCards.filter(selectedCard => {
+                            return selectedCard.name !== card.name;
+                        });
+                        
+                        img.classList.toggle("selected");
+                    } else {
+                        selectedCards.push(card);
+
+                        img.classList.toggle("selected");
+                    }
+                }
+
+                console.log("Selected Cards: ", selectedCards);
+            });
+
             img.setAttribute("width", 120);
             img.setAttribute("src", "images/" + card.imageUrl);
+            img.setAttribute("data-card", card);
 
             template.gameArenaContainer.appendChild(img);
         });
