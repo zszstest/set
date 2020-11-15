@@ -7,6 +7,7 @@ const GAME_AREA_ID = "gameArea";
 const GAME_AREA_HEADER_ID = "gameAreaHeader";
 const GAME_LEVELS_ID = "gameLevels";
 const GAME_MODES_ID = "gameModes";
+const GAME_PLAYERS_ID = "gamePlayers";
 
 const IS_AUTO_SUPLEMENT_CHECKBOX_ID = "isAutoSupplementCheckbox";
 const IS_SET_CHECKBOX_ID = "isSetCheckbox";

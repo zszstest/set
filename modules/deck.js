@@ -22,6 +22,8 @@ var Deck = function (gameLevel, setSize) {
   this.init = function () {
     this.cards = this.createCards();
     this.cards = this.shuffling(this.cards);
+
+    this.log();
   };
 
   this.shuffling = function (cards) {

@@ -5,6 +5,7 @@ const Template = function () {
     this.gameSettingsDivElement = null;
     this.gameLevelsElement = null;
     this.gameModesElement = null;
+    this.gamePlayersContainer = null;
     this.isAutoSupplementCheckboxElement = null;
     this.isSetCheckboxElement = null;
     this.isWhereSetCheckboxElement = null;
@@ -76,5 +77,9 @@ const Template = function () {
 
     this.createGameArenaContainer = function () {
         this.gameArenaContainer = document.getElementById(GAME_AREA_ID);
+    };
+
+    this.createGamePlayersContainer = function () {
+        this.gamePlayersContainer = document.getElementById(GAME_PLAYERS_ID);
     };
 };

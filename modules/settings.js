@@ -101,7 +101,7 @@ const Settings = function () {
         );
 
         return Array.from(playerInputs).map(
-            (playerInput) => new Player(playerInput.value)
+            (playerInput) => playerInput.value
         );
     };
 

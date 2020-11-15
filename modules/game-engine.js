@@ -1,27 +1,35 @@
 const GameEngine = function () {
     this.deck = null;
     this.cardsOnBoard = null;
+    this.checkButtonElement = null;
 
     let selectedCards = [];
 
-    this.init = function () {
+    this.init = () => {
         template.createGameArenaContainer();
+        template.createGamePlayersContainer();
     };
 
-    this.startGame = function (config) {
+    this.startGame = (config) => {
+        createCheckButtonElement();
+
         template.createHeaderButtons(
             config.isSetButton,
             config.isWhereSetButton,
             config.isAutoSupplementButton
         );
 
-        this.deck = new Deck(config.gameLevel, 3);
+        createGamePlayers(config.playerNames);
 
-        this.deck.log();
+        this.deck = new Deck(config.gameLevel, 3);
 
         this.cardsOnBoard = this.deck.handlingOut(12);
 
         this.cardsOnBoard.forEach((card) => {
+            const spanElement = document.createElement("span");
+
+            spanElement.classList.add("card-container");
+
             var img = document.createElement("img");
 
             img.addEventListener("click", (event) => {
@@ -46,7 +54,9 @@ const GameEngine = function () {
             img.setAttribute("src", "images/" + card.imageUrl);
             img.setAttribute("data-card", card);
 
-            template.gameArenaContainer.appendChild(img);
+            spanElement.appendChild(img);
+
+            template.gameArenaContainer.appendChild(spanElement);
         });
 
         const sets = findSets(generate3Cards(Array.from(this.cardsOnBoard)));
@@ -54,7 +64,7 @@ const GameEngine = function () {
         console.log(sets);
     };
 
-    const findSets = function (cardsMap) {
+    const findSets = (cardsMap) => {
         const cardSets = [];
 
         Array.from(cardsMap.values()).forEach((cards) => {
@@ -67,7 +77,7 @@ const GameEngine = function () {
         return cardSets;
     };
 
-    const checkSetOnCards = function (cards) {
+    const checkSetOnCards = (cards) => {
         if (
             areEqualOrDifferent([
                 cards[0].number,
@@ -96,7 +106,7 @@ const GameEngine = function () {
         }
     };
 
-    const areEqualOrDifferent = function (values) {
+    const areEqualOrDifferent = (values) => {
         return (
             (values[0] === values[1] &&
                 values[0] === values[2] &&
@@ -107,7 +117,42 @@ const GameEngine = function () {
         );
     };
 
-    const generate3Cards = function (cards) {
+    const createCheckButtonElement = () => {
+        this.checkButtonElement = document.createElement("button");
+
+        this.checkButtonElement.innerHTML = "Check";
+        this.checkButtonElement.classList.add("btn");
+        this.checkButtonElement.classList.add("btn-primary");
+        this.checkButtonElement.classList.add("mr-1");
+
+        this.checkButtonElement.addEventListener("click", (event) => {
+            console.log("Check selected cards");
+        });
+
+        template.gameAreaHeaderElement.appendChild(this.checkButtonElement);
+    };
+
+    const createGamePlayers = (playerNames) => {
+        const players = playerNames.map(playerName => new Player(playerName));
+
+        players.forEach(player => {
+            const playerContainer = document.createElement("div");
+
+            playerContainer.classList.add("row");
+            playerContainer.classList.add("player");
+
+            playerContainer.innerHTML = 
+                "<div class='col-sm-4'>" + player.name + "</div>" +
+                "<div class='col-sm-2'>" + player.tryings + "</div>" +
+                "<div class='col-sm-2'>" + player.corrects + "</div>" +
+                "<div class='col-sm-2'>" + player.fails + "</div>" +
+                "<div class='col-sm-2'>" + player.points + "</div>";
+
+            template.gamePlayersContainer.appendChild(playerContainer);
+        });
+    };
+
+    const generate3Cards = (cards) => {
         const threeCards = new Map();
 
         cards.forEach((card1) =>
