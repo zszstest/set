@@ -7,6 +7,14 @@
     margin: 0 10px;
 }
 
+.player {
+    cursor: pointer;
+}
+
+.player.selected {
+    background-color: darkgray;
+}
+
 .player div {
     margin: 10px 0;
 }

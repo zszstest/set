@@ -4,14 +4,25 @@ const GameEngine = function () {
     this.checkButtonElement = null;
 
     let selectedCards = [];
-
+    let selectedCardElementMap = new Map();
     let currentSets = [];
+    let selectedPlayerContainer = null;
 
+    /**
+     * Initializes game engine.
+     */
     this.init = () => {
         template.createGameArenaContainer();
         template.createGamePlayersContainer();
     };
 
+    /**
+     * Starts game.
+     *
+     * @param {*} config
+     *
+     * @returns void
+     */
     this.startGame = (config) => {
         createCheckButtonElement();
 
@@ -28,24 +39,28 @@ const GameEngine = function () {
         this.cardsOnBoard = this.deck.handlingOut(12);
 
         this.cardsOnBoard.forEach((card) => {
-            const spanElement = document.createElement("span");
+            const cardElement = document.createElement("span");
 
-            spanElement.classList.add("card-container");
+            cardElement.classList.add("card-container");
 
             var img = document.createElement("img");
 
             img.addEventListener("click", (event) => {
-                if (selectedCards.length < 3) {
+                if (selectedCards.length < 3 && !!selectedPlayerContainer) {
                     if (selectedCards.includes(card)) {
-                        selectedCards = selectedCards.filter(selectedCard => {
+                        selectedCards = selectedCards.filter((selectedCard) => {
                             return selectedCard.name !== card.name;
                         });
-                        
+
                         img.classList.toggle("selected");
+
+                        selectedCardElementMap.delete(card);
                     } else {
                         selectedCards.push(card);
 
                         img.classList.toggle("selected");
+
+                        selectedCardElementMap.set(card, cardElement);
                     }
                 }
 
@@ -58,32 +73,35 @@ const GameEngine = function () {
 
             img.setAttribute("width", 120);
             img.setAttribute("src", "images/" + card.imageUrl);
-            img.setAttribute("data-card", card);
+            img.setAttribute("data-card", JSON.stringify(card));
 
-            spanElement.appendChild(img);
+            cardElement.appendChild(img);
 
-            template.gameArenaContainer.appendChild(spanElement);
+            template.gameArenaContainer.appendChild(cardElement);
         });
 
         currentSets = findSets(generate3Cards(Array.from(this.cardsOnBoard)));
-
-        console.log(currentSets);
     };
 
-    const findSets = (cardsMap) => {
-        const cardSets = [];
-
-        Array.from(cardsMap.values()).forEach((cards) => {
-            console.log(cards);
-
-            if (checkSetOnCards(cards)) {
-                cardSets.push(cards);
-            }
-        });
-
-        return cardSets;
+    /**
+     *
+     * @param {*} values
+     */
+    const areEqualOrDifferent = (values) => {
+        return (
+            (values[0] === values[1] &&
+                values[0] === values[2] &&
+                values[1] === values[2]) ||
+            (values[0] !== values[1] &&
+                values[0] !== values[2] &&
+                values[1] !== values[2])
+        );
     };
 
+    /**
+     *
+     * @param {*} cards
+     */
     const checkSetOnCards = (cards) => {
         if (
             areEqualOrDifferent([
@@ -113,20 +131,18 @@ const GameEngine = function () {
         }
     };
 
-    const areEqualOrDifferent = (values) => {
-        return (
-            (values[0] === values[1] &&
-                values[0] === values[2] &&
-                values[1] === values[2]) ||
-            (values[0] !== values[1] &&
-                values[0] !== values[2] &&
-                values[1] !== values[2])
-        );
-    };
-
+    /**
+     * Decides that the selected cards by the selected player is set or not.
+     *
+     * @returns boolean
+     */
     const checkSelectedCardsForSet = () => {
         return currentSets.reduce((isSet, currentCards) => {
-            if (currentCards.includes(selectedCards[0]) && currentCards.includes(selectedCards[1]) && currentCards.includes(selectedCards[2])) {
+            if (
+                currentCards.includes(selectedCards[0]) &&
+                currentCards.includes(selectedCards[1]) &&
+                currentCards.includes(selectedCards[2])
+            ) {
                 isSet = true;
             }
 
@@ -134,46 +150,104 @@ const GameEngine = function () {
         }, false);
     };
 
+    /**
+     * Create a check button element with click event handler.
+     */
     const createCheckButtonElement = () => {
         this.checkButtonElement = document.createElement("button");
 
         this.checkButtonElement.innerHTML = "Check";
-        this.checkButtonElement.setAttribute(
-            "disabled",
-            "disabled"
-        );
+        this.checkButtonElement.setAttribute("disabled", "disabled");
         this.checkButtonElement.classList.add("btn");
         this.checkButtonElement.classList.add("btn-primary");
         this.checkButtonElement.classList.add("mr-1");
 
-
         this.checkButtonElement.addEventListener("click", (event) => {
-            console.log(checkSelectedCardsForSet());
+            const isSet = checkSelectedCardsForSet();
+
+            maintainPlayer(selectedPlayerContainer, isSet);
+
+            reset(isSet);
         });
 
         template.gameAreaHeaderElement.appendChild(this.checkButtonElement);
     };
 
+    /**
+     * Creates game players and player elements based on the given player names from settings.
+     *
+     * @param {*} playerNames
+     * @returns void
+     */
     const createGamePlayers = (playerNames) => {
-        const players = playerNames.map(playerName => new Player(playerName));
+        const players = playerNames.map((playerName) => new Player(playerName));
+        const playerElements = [];
 
-        players.forEach(player => {
+        players.forEach((player) => {
             const playerContainer = document.createElement("div");
 
             playerContainer.classList.add("row");
             playerContainer.classList.add("player");
+            playerContainer.setAttribute("data-player", JSON.stringify(player));
 
-            playerContainer.innerHTML = 
-                "<div class='col-sm-4'>" + player.name + "</div>" +
-                "<div class='col-sm-2'>" + player.tryings + "</div>" +
-                "<div class='col-sm-2'>" + player.corrects + "</div>" +
-                "<div class='col-sm-2'>" + player.fails + "</div>" +
-                "<div class='col-sm-2'>" + player.points + "</div>";
+            playerContainer.addEventListener("click", (event) => {
+                selectedPlayerContainer = playerContainer;
+
+                playerElements.forEach((playerElement) => {
+                    playerElement.classList.remove("selected");
+                });
+
+                playerContainer.classList.add("selected");
+            });
+
+            playerContainer.innerHTML =
+                "<div class='col-sm-4 name'>" +
+                player.name +
+                "</div>" +
+                "<div class='col-sm-2 attempts'>" +
+                player.attempts +
+                "</div>" +
+                "<div class='col-sm-2 corrects'>" +
+                player.corrects +
+                "</div>" +
+                "<div class='col-sm-2 fails'>" +
+                player.fails +
+                "</div>" +
+                "<div class='col-sm-2 points'>" +
+                player.points +
+                "</div>";
+
+            playerElements.push(playerContainer);
 
             template.gamePlayersContainer.appendChild(playerContainer);
         });
     };
 
+    /**
+     * Fints sets in a card map.
+     * Returns the all found card sets.
+     *
+     * @param {*} cardsMap
+     */
+    const findSets = (cardsMap) => {
+        const cardSets = [];
+
+        Array.from(cardsMap.values()).forEach((cards) => {
+            console.log(cards);
+
+            if (checkSetOnCards(cards)) {
+                cardSets.push(cards);
+            }
+        });
+
+        return cardSets;
+    };
+
+    /**
+     * Makes 3 cards array in the all variations.
+     *
+     * @param {*} cards
+     */
     const generate3Cards = (cards) => {
         const threeCards = new Map();
 
@@ -202,6 +276,48 @@ const GameEngine = function () {
         console.log(threeCards);
 
         return threeCards;
+    };
+
+    /**
+     *
+     * @param {*} playerContainer
+     */
+    const maintainPlayer = (playerContainer, isSet) => {
+        const player = JSON.parse(playerContainer.getAttribute("data-player"));
+
+        player.attempts = player.attempts + 1;
+
+        if (isSet) {
+            player.corrects = player.corrects + 1;
+            player.points = player.points + 1;
+        } else {
+            player.fails = player.fails + 1;
+        }
+
+        playerContainer.querySelector(".attempts").innerHTML = player.attempts;
+        playerContainer.querySelector(".corrects").innerHTML = player.corrects;
+        playerContainer.querySelector(".fails").innerHTML = player.fails;
+        playerContainer.querySelector(".points").innerHTML = player.points;
+
+        console.log("Player: ", player);
+    };
+
+    /**
+     *
+     */
+    const reset = (isSet) => {
+        selectedPlayerContainer.classList.remove("selected");
+        selectedPlayerContainer = null;
+
+        this.checkButtonElement.setAttribute("disabled", "disabled");
+
+        selectedCards = [];
+
+        Array.from(selectedCardElementMap.values()).forEach((cardElement) => {
+            cardElement.querySelector("img").classList.remove("selected");
+        });
+
+        selectedCardElementMap.clear();
     };
 
     this.init();
