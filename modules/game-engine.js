@@ -5,6 +5,8 @@ const GameEngine = function () {
 
     let selectedCards = [];
 
+    let currentSets = [];
+
     this.init = () => {
         template.createGameArenaContainer();
         template.createGamePlayersContainer();
@@ -47,6 +49,10 @@ const GameEngine = function () {
                     }
                 }
 
+                if (selectedCards.length === 3) {
+                    this.checkButtonElement.removeAttribute("disabled");
+                }
+
                 console.log("Selected Cards: ", selectedCards);
             });
 
@@ -59,9 +65,9 @@ const GameEngine = function () {
             template.gameArenaContainer.appendChild(spanElement);
         });
 
-        const sets = findSets(generate3Cards(Array.from(this.cardsOnBoard)));
+        currentSets = findSets(generate3Cards(Array.from(this.cardsOnBoard)));
 
-        console.log(sets);
+        console.log(currentSets);
     };
 
     const findSets = (cardsMap) => {
@@ -69,6 +75,7 @@ const GameEngine = function () {
 
         Array.from(cardsMap.values()).forEach((cards) => {
             console.log(cards);
+
             if (checkSetOnCards(cards)) {
                 cardSets.push(cards);
             }
@@ -117,16 +124,31 @@ const GameEngine = function () {
         );
     };
 
+    const checkSelectedCardsForSet = () => {
+        return currentSets.reduce((isSet, currentCards) => {
+            if (currentCards.includes(selectedCards[0]) && currentCards.includes(selectedCards[1]) && currentCards.includes(selectedCards[2])) {
+                isSet = true;
+            }
+
+            return isSet;
+        }, false);
+    };
+
     const createCheckButtonElement = () => {
         this.checkButtonElement = document.createElement("button");
 
         this.checkButtonElement.innerHTML = "Check";
+        this.checkButtonElement.setAttribute(
+            "disabled",
+            "disabled"
+        );
         this.checkButtonElement.classList.add("btn");
         this.checkButtonElement.classList.add("btn-primary");
         this.checkButtonElement.classList.add("mr-1");
 
+
         this.checkButtonElement.addEventListener("click", (event) => {
-            console.log("Check selected cards");
+            console.log(checkSelectedCardsForSet());
         });
 
         template.gameAreaHeaderElement.appendChild(this.checkButtonElement);
