@@ -1,8 +1,8 @@
 const GameEngine = function () {
     this.deck = null;
-    this.cardsOnBoard = null;
     this.checkButtonElement = null;
 
+    let cardsOnBoard = null;
     let selectedCards = [];
     let selectedCardElementMap = new Map();
     let currentSets = [];
@@ -12,7 +12,7 @@ const GameEngine = function () {
      * Initializes game engine.
      */
     this.init = () => {
-        template.createGameArenaContainer();
+        template.createGameAreaContainer();
         template.createGamePlayersContainer();
     };
 
@@ -36,51 +36,9 @@ const GameEngine = function () {
 
         this.deck = new Deck(config.gameLevel, 3);
 
-        this.cardsOnBoard = this.deck.handlingOut(12);
+        cardsOnBoard = this.deck.handlingOut(12);
 
-        this.cardsOnBoard.forEach((card) => {
-            const cardElement = document.createElement("span");
-
-            cardElement.classList.add("card-container");
-
-            var img = document.createElement("img");
-
-            img.addEventListener("click", (event) => {
-                if (selectedCards.length < 3 && !!selectedPlayerContainer) {
-                    if (selectedCards.includes(card)) {
-                        selectedCards = selectedCards.filter((selectedCard) => {
-                            return selectedCard.name !== card.name;
-                        });
-
-                        img.classList.toggle("selected");
-
-                        selectedCardElementMap.delete(card);
-                    } else {
-                        selectedCards.push(card);
-
-                        img.classList.toggle("selected");
-
-                        selectedCardElementMap.set(card, cardElement);
-                    }
-                }
-
-                if (selectedCards.length === 3) {
-                    this.checkButtonElement.removeAttribute("disabled");
-                }
-
-                console.log("Selected Cards: ", selectedCards);
-            });
-
-            img.setAttribute("width", 120);
-            img.setAttribute("src", "images/" + card.imageUrl);
-            img.setAttribute("data-card", JSON.stringify(card));
-
-            cardElement.appendChild(img);
-
-            template.gameArenaContainer.appendChild(cardElement);
-        });
-
-        currentSets = findSets(generate3Cards(Array.from(this.cardsOnBoard)));
+        maintainGameAreaContainer();
     };
 
     /**
@@ -166,6 +124,20 @@ const GameEngine = function () {
             const isSet = checkSelectedCardsForSet();
 
             maintainPlayer(selectedPlayerContainer, isSet);
+
+            if (isSet) {
+                selectedCards.forEach((card) => {
+                    cardsOnBoard = cardsOnBoard.filter(
+                        (cardOnBoard) => cardOnBoard !== card
+                    );
+                });
+
+                console.log(cardsOnBoard);
+
+                cardsOnBoard = [...cardsOnBoard, ...this.deck.handlingOut(3)];
+
+                maintainGameAreaContainer();
+            }
 
             reset(isSet);
         });
@@ -299,7 +271,58 @@ const GameEngine = function () {
         playerContainer.querySelector(".fails").innerHTML = player.fails;
         playerContainer.querySelector(".points").innerHTML = player.points;
 
-        console.log("Player: ", player);
+        playerContainer.setAttribute("data-player", JSON.stringify(player));
+    };
+
+    /**
+     * Update game area when the application is initialized and every cases when players find a set.
+     */
+    const maintainGameAreaContainer = () => {
+        template.gameAreaContainer.innerHTML = "";
+
+        cardsOnBoard.forEach((card) => {
+            const cardElement = document.createElement("span");
+
+            cardElement.classList.add("card-container");
+
+            var img = document.createElement("img");
+
+            img.addEventListener("click", (event) => {
+                if (selectedCards.length < 3 && !!selectedPlayerContainer) {
+                    if (selectedCards.includes(card)) {
+                        selectedCards = selectedCards.filter((selectedCard) => {
+                            return selectedCard.name !== card.name;
+                        });
+
+                        img.classList.toggle("selected");
+
+                        selectedCardElementMap.delete(card);
+                    } else {
+                        selectedCards.push(card);
+
+                        img.classList.toggle("selected");
+
+                        selectedCardElementMap.set(card, cardElement);
+                    }
+                }
+
+                if (selectedCards.length === 3) {
+                    this.checkButtonElement.removeAttribute("disabled");
+                }
+
+                console.log("Selected Cards: ", selectedCards);
+            });
+
+            img.setAttribute("width", 120);
+            img.setAttribute("src", "images/" + card.imageUrl);
+            img.setAttribute("data-card", JSON.stringify(card));
+
+            cardElement.appendChild(img);
+
+            template.gameAreaContainer.appendChild(cardElement);
+
+            currentSets = findSets(generate3Cards(Array.from(cardsOnBoard)));
+        });
     };
 
     /**

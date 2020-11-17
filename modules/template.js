@@ -1,5 +1,5 @@
 const Template = function () {
-    this.gameArenaContainer = null;
+    this.gameAreaContainer = null;
     this.gameAreaDivElement = null;
     this.gameAreaHeaderElement = null;
     this.gameSettingsDivElement = null;
@@ -29,7 +29,7 @@ const Template = function () {
     this.playerInputsContainer = document.getElementById(PLAYER_INPUTS_ID);
     this.playerNumberElement = document.getElementById(PLAYER_NUMBER_ID);
 
-    this.gameArenaContainer = document.getElementById(GAME_AREA_ID);
+    this.gameAreaContainer = document.getElementById(GAME_AREA_ID);
 
     this.changeAreas = function () {
         this.gameSettingsDivElement.classList.toggle("d-none");
@@ -75,8 +75,8 @@ const Template = function () {
         }
     };
 
-    this.createGameArenaContainer = function () {
-        this.gameArenaContainer = document.getElementById(GAME_AREA_ID);
+    this.createGameAreaContainer = function () {
+        this.gameAreaContainer = document.getElementById(GAME_AREA_ID);
     };
 
     this.createGamePlayersContainer = function () {
