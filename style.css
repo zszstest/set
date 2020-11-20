@@ -1,9 +1,14 @@
-.game-arena .selected {
+.game-area-header {
+    display: flex;
+}
+
+.game-area .selected {
     background-color: red;
     border: 4px solid red;
 }
 
-.game-arena .card-container {
+.game-area .card-container {
+    height: 100%;
     margin: 0 10px;
 }
 

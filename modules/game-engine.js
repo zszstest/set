@@ -4,7 +4,6 @@ const GameEngine = function () {
 
     let cardsOnBoard = null;
     let selectedCards = [];
-    let selectedCardElementMap = new Map();
     let currentSets = [];
     let selectedPlayerContainer = null;
 
@@ -26,7 +25,7 @@ const GameEngine = function () {
     this.startGame = (config) => {
         createCheckButtonElement();
 
-        template.createHeaderButtons(
+        createHeaderButtons(
             config.isSetButton,
             config.isWhereSetButton,
             config.isAutoSupplementButton
@@ -34,7 +33,7 @@ const GameEngine = function () {
 
         createGamePlayers(config.playerNames);
 
-        this.deck = new Deck(config.gameLevel, 3);
+        this.deck = new Deck(config.gameLevel);
 
         cardsOnBoard = this.deck.handlingOut(12);
 
@@ -135,11 +134,11 @@ const GameEngine = function () {
                 console.log(cardsOnBoard);
 
                 cardsOnBoard = [...cardsOnBoard, ...this.deck.handlingOut(3)];
-
-                maintainGameAreaContainer();
             }
 
-            reset(isSet);
+            reset();
+
+            maintainGameAreaContainer();
         });
 
         template.gameAreaHeaderElement.appendChild(this.checkButtonElement);
@@ -196,6 +195,108 @@ const GameEngine = function () {
     };
 
     /**
+     * Create header buttons with event handlers.
+     *
+     * @param {*} isSetButton
+     * @param {*} isWhereSetButton
+     * @param {*} isAutoSupplementButton
+     */
+    const createHeaderButtons = (
+        isSetButton,
+        isWhereSetButton,
+        isAutoSupplementButton
+    ) => {
+        // Creates elements in template.
+        template.createHeaderButtons(
+            isSetButton,
+            isWhereSetButton,
+            isAutoSupplementButton
+        );
+
+        if (isSetButton) {
+            setClickEventOnIsSetButton();
+        }
+
+        if (isWhereSetButton) {
+            setClickEventOnIsWhereButton();
+        }
+
+        if (isAutoSupplementButton) {
+            template.isAutoSupplementButtonElement.setAttribute(
+                "disabled",
+                "disabled"
+            );
+
+            template.isAutoSupplementButtonElement.addEventListener(
+                "click",
+                (event) => {
+                    if (currentSets.length > 0) {
+                        reset();
+
+                        cardsOnBoard = [
+                            ...cardsOnBoard,
+                            ...this.deck.handlingOut(3),
+                        ];
+
+                        maintainGameAreaContainer();
+                    }
+                }
+            );
+        }
+    };
+
+    /**
+     * Add event listener to isWhereSetButtonElement that will select the first
+     * set of the currentSets and remove selection after a timeout.
+     */
+    const setClickEventOnIsWhereButton = () => {
+        template.isWhereSetButtonElement.addEventListener("click", (event) => {
+            if (currentSets.length === 0) {
+                let isSetWhereContainer = document.createElement("div");
+
+                isSetWhereContainer.classList.add("is-where-set");
+                isSetWhereContainer.innerHTML = `There is not set on the board.`;
+
+                template.gameAreaHeaderElement.appendChild(isSetWhereContainer);
+
+                setTimeout(() => {
+                    template.gameAreaHeaderElement.removeChild(
+                        template.gameAreaHeaderElement.lastChild
+                    );
+                }, 6000);
+            } else {
+                const currentSelectedSetCardElements = [];
+
+                currentSets[0].forEach((setCard) => {
+                    const setCardElement = Array.from(
+                        template.gameAreaContainer.children
+                    ).find((cardElement) => {
+                        const card = JSON.parse(
+                            cardElement.getAttribute("data-card")
+                        );
+
+                        return card.name === setCard.name;
+                    });
+
+                    setCardElement
+                        .querySelector("img")
+                        .classList.toggle("selected");
+
+                    currentSelectedSetCardElements.push(setCardElement);
+                });
+
+                setTimeout(() => {
+                    currentSelectedSetCardElements.forEach((setCardElement) =>
+                        setCardElement
+                            .querySelector("img")
+                            .classList.toggle("selected")
+                    );
+                }, 3000);
+            }
+        });
+    };
+
+    /**
      * Fints sets in a card map.
      * Returns the all found card sets.
      *
@@ -245,8 +346,6 @@ const GameEngine = function () {
             )
         );
 
-        console.log(threeCards);
-
         return threeCards;
     };
 
@@ -284,6 +383,7 @@ const GameEngine = function () {
             const cardElement = document.createElement("span");
 
             cardElement.classList.add("card-container");
+            cardElement.setAttribute("data-card", JSON.stringify(card));
 
             var img = document.createElement("img");
 
@@ -295,14 +395,10 @@ const GameEngine = function () {
                         });
 
                         img.classList.toggle("selected");
-
-                        selectedCardElementMap.delete(card);
                     } else {
                         selectedCards.push(card);
 
                         img.classList.toggle("selected");
-
-                        selectedCardElementMap.set(card, cardElement);
                     }
                 }
 
@@ -328,19 +424,38 @@ const GameEngine = function () {
     /**
      *
      */
-    const reset = (isSet) => {
+    const reset = () => {
         selectedPlayerContainer.classList.remove("selected");
         selectedPlayerContainer = null;
 
         this.checkButtonElement.setAttribute("disabled", "disabled");
 
         selectedCards = [];
+    };
 
-        Array.from(selectedCardElementMap.values()).forEach((cardElement) => {
-            cardElement.querySelector("img").classList.remove("selected");
+    /**
+     * Add event listener to isSetButtonElement that will display number
+     * of current sets and remove message after a timeout.
+     */
+    const setClickEventOnIsSetButton = () => {
+        template.isSetButtonElement.addEventListener("click", (event) => {
+            const currentSetsNumber = currentSets.length;
+            let isSetContainer = document.createElement("div");
+
+            isSetContainer.classList.add("isSet");
+            isSetContainer.innerHTML =
+                currentSetsNumber > 0
+                    ? `Thera are ${currentSetsNumber} sets on the board.`
+                    : `There is not set on the board.`;
+
+            template.gameAreaHeaderElement.appendChild(isSetContainer);
+
+            setTimeout(() => {
+                template.gameAreaHeaderElement.removeChild(
+                    template.gameAreaHeaderElement.lastChild
+                );
+            }, 6000);
         });
-
-        selectedCardElementMap.clear();
     };
 
     this.init();
