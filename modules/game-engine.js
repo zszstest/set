@@ -13,6 +13,8 @@ const GameEngine = function () {
     this.init = () => {
         template.createGameAreaContainer();
         template.createGamePlayersContainer();
+
+        registerKeyUpEvent();
     };
 
     /**
@@ -455,6 +457,22 @@ const GameEngine = function () {
                     template.gameAreaHeaderElement.lastChild
                 );
             }, 6000);
+        });
+    };
+
+    const registerKeyUpEvent = () => {
+        document.addEventListener("keyup", (event) => {
+            if (event.altKey) {
+                const index = event.code.replace("Numpad", "");
+
+                Array.from(template.gamePlayersContainer.children).forEach((playerElement) => {
+                    playerElement.classList.remove("selected");
+                });
+                
+                selectedPlayerContainer = template.gamePlayersContainer.children[index];
+    
+                selectedPlayerContainer.classList.add("selected");
+            }
         });
     };
 
