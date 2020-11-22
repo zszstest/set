@@ -6,6 +6,8 @@ const GameEngine = function () {
     let selectedCards = [];
     let currentSets = [];
     let selectedPlayerContainer = null;
+    let players = null;
+    let playersMap = new Map();
 
     /**
      * Initializes game engine.
@@ -33,13 +35,15 @@ const GameEngine = function () {
             config.isAutoSupplementButton
         );
 
-        createGamePlayers(config.playerNames);
+        createGamePlayers(config.playerNames, template.gamePlayersContainer);
 
         this.deck = new Deck(config.gameLevel);
 
         cardsOnBoard = this.deck.handlingOut(12);
 
         maintainGameAreaContainer();
+
+        storage.startGame(this.getNow(), players);
     };
 
     /**
@@ -138,9 +142,20 @@ const GameEngine = function () {
                 cardsOnBoard = [...cardsOnBoard, ...this.deck.handlingOut(3)];
             }
 
+            storage.addHistoryItem(
+                this.getNow(),
+                JSON.parse(selectedPlayerContainer.getAttribute("data-player")),
+                selectedCards,
+                isSet
+            );
+
             reset();
 
             maintainGameAreaContainer();
+
+            if (currentSets.length === 0) {
+                this.finishGame();
+            }
         });
 
         template.gameAreaHeaderElement.appendChild(this.checkButtonElement);
@@ -152,10 +167,17 @@ const GameEngine = function () {
      * @param {*} playerNames
      * @returns void
      */
-    const createGamePlayers = (playerNames) => {
-        const players = playerNames.map((playerName) => new Player(playerName));
-        const playerElements = [];
+    const createGamePlayers = (playerNames, container) => {
+        players = playerNames.map((playerName) => new Player(playerName));
 
+        players.forEach(player => playersMap.set(player.name, player));
+
+        createGamePlayerList(players, container, true);
+    };
+
+    const createGamePlayerList = (players, container, isAction) => {
+        const playerElements = [];
+    
         players.forEach((player) => {
             const playerContainer = document.createElement("div");
 
@@ -163,15 +185,17 @@ const GameEngine = function () {
             playerContainer.classList.add("player");
             playerContainer.setAttribute("data-player", JSON.stringify(player));
 
-            playerContainer.addEventListener("click", (event) => {
-                selectedPlayerContainer = playerContainer;
-
-                playerElements.forEach((playerElement) => {
-                    playerElement.classList.remove("selected");
+            if (isAction) {
+                playerContainer.addEventListener("click", (event) => {
+                    selectedPlayerContainer = playerContainer;
+    
+                    playerElements.forEach((playerElement) => {
+                        playerElement.classList.remove("selected");
+                    });
+    
+                    playerContainer.classList.add("selected");
                 });
-
-                playerContainer.classList.add("selected");
-            });
+            }
 
             playerContainer.innerHTML =
                 "<div class='col-sm-4 name'>" +
@@ -192,7 +216,7 @@ const GameEngine = function () {
 
             playerElements.push(playerContainer);
 
-            template.gamePlayersContainer.appendChild(playerContainer);
+           container.appendChild(playerContainer);
         });
     };
 
@@ -247,55 +271,15 @@ const GameEngine = function () {
         }
     };
 
-    /**
-     * Add event listener to isWhereSetButtonElement that will select the first
-     * set of the currentSets and remove selection after a timeout.
-     */
-    const setClickEventOnIsWhereButton = () => {
-        template.isWhereSetButtonElement.addEventListener("click", (event) => {
-            if (currentSets.length === 0) {
-                let isSetWhereContainer = document.createElement("div");
+    this.finishGame = () => {
+        storage.finishGame(this.getNow());
 
-                isSetWhereContainer.classList.add("is-where-set");
-                isSetWhereContainer.innerHTML = `There is not set on the board.`;
+        template.gameAreaDivElement.classList.add("d-none");
+        template.gameResultDivElement.classList.remove("d-none");
 
-                template.gameAreaHeaderElement.appendChild(isSetWhereContainer);
+        const sortedPlayers = Array.from(playersMap.values()).sort((a, b) => a.points < b.points ? 1 : -1);
 
-                setTimeout(() => {
-                    template.gameAreaHeaderElement.removeChild(
-                        template.gameAreaHeaderElement.lastChild
-                    );
-                }, 6000);
-            } else {
-                const currentSelectedSetCardElements = [];
-
-                currentSets[0].forEach((setCard) => {
-                    const setCardElement = Array.from(
-                        template.gameAreaContainer.children
-                    ).find((cardElement) => {
-                        const card = JSON.parse(
-                            cardElement.getAttribute("data-card")
-                        );
-
-                        return card.name === setCard.name;
-                    });
-
-                    setCardElement
-                        .querySelector("img")
-                        .classList.toggle("selected");
-
-                    currentSelectedSetCardElements.push(setCardElement);
-                });
-
-                setTimeout(() => {
-                    currentSelectedSetCardElements.forEach((setCardElement) =>
-                        setCardElement
-                            .querySelector("img")
-                            .classList.toggle("selected")
-                    );
-                }, 3000);
-            }
-        });
+        createGamePlayerList(sortedPlayers, template.gameResultDivElement, false);
     };
 
     /**
@@ -351,6 +335,12 @@ const GameEngine = function () {
         return threeCards;
     };
 
+    this.getNow = () => {
+        const date = new Date();
+
+        return date.getTime();
+    };
+
     /**
      *
      * @param {*} playerContainer
@@ -373,6 +363,8 @@ const GameEngine = function () {
         playerContainer.querySelector(".points").innerHTML = player.points;
 
         playerContainer.setAttribute("data-player", JSON.stringify(player));
+
+        playersMap.set(player.name, player);
     };
 
     /**
@@ -423,6 +415,25 @@ const GameEngine = function () {
         });
     };
 
+    const registerKeyUpEvent = () => {
+        document.addEventListener("keyup", (event) => {
+            if (event.altKey) {
+                const index = event.code.replace("Numpad", "");
+
+                Array.from(template.gamePlayersContainer.children).forEach(
+                    (playerElement) => {
+                        playerElement.classList.remove("selected");
+                    }
+                );
+
+                selectedPlayerContainer =
+                    template.gamePlayersContainer.children[index];
+
+                selectedPlayerContainer.classList.add("selected");
+            }
+        });
+    };
+
     /**
      *
      */
@@ -460,18 +471,53 @@ const GameEngine = function () {
         });
     };
 
-    const registerKeyUpEvent = () => {
-        document.addEventListener("keyup", (event) => {
-            if (event.altKey) {
-                const index = event.code.replace("Numpad", "");
+     /**
+     * Add event listener to isWhereSetButtonElement that will select the first
+     * set of the currentSets and remove selection after a timeout.
+     */
+    const setClickEventOnIsWhereButton = () => {
+        template.isWhereSetButtonElement.addEventListener("click", (event) => {
+            if (currentSets.length === 0) {
+                let isSetWhereContainer = document.createElement("div");
 
-                Array.from(template.gamePlayersContainer.children).forEach((playerElement) => {
-                    playerElement.classList.remove("selected");
+                isSetWhereContainer.classList.add("is-where-set");
+                isSetWhereContainer.innerHTML = `There is not set on the board.`;
+
+                template.gameAreaHeaderElement.appendChild(isSetWhereContainer);
+
+                setTimeout(() => {
+                    template.gameAreaHeaderElement.removeChild(
+                        template.gameAreaHeaderElement.lastChild
+                    );
+                }, 6000);
+            } else {
+                const currentSelectedSetCardElements = [];
+
+                currentSets[0].forEach((setCard) => {
+                    const setCardElement = Array.from(
+                        template.gameAreaContainer.children
+                    ).find((cardElement) => {
+                        const card = JSON.parse(
+                            cardElement.getAttribute("data-card")
+                        );
+
+                        return card.name === setCard.name;
+                    });
+
+                    setCardElement
+                        .querySelector("img")
+                        .classList.toggle("selected");
+
+                    currentSelectedSetCardElements.push(setCardElement);
                 });
-                
-                selectedPlayerContainer = template.gamePlayersContainer.children[index];
-    
-                selectedPlayerContainer.classList.add("selected");
+
+                setTimeout(() => {
+                    currentSelectedSetCardElements.forEach((setCardElement) =>
+                        setCardElement
+                            .querySelector("img")
+                            .classList.toggle("selected")
+                    );
+                }, 3000);
             }
         });
     };

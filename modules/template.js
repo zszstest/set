@@ -6,6 +6,7 @@ const Template = function () {
     this.gameLevelsElement = null;
     this.gameModesElement = null;
     this.gamePlayersContainer = null;
+    this.gameResultDivElement = null;
     this.isAutoSupplementCheckboxElement = null;
     this.isSetCheckboxElement = null;
     this.isWhereSetCheckboxElement = null;
@@ -20,6 +21,7 @@ const Template = function () {
     this.gameSettingsDivElement = document.getElementById(GAME_SETTINGS_DIV_ID);
     this.gameLevelsElement = document.getElementById(GAME_LEVELS_ID);
     this.gameModesElement = document.getElementById(GAME_MODES_ID);
+    this.gameResultDivElement = document.getElementById(GAME_RESULT_DIV_ID);
     this.isAutoSupplementCheckboxElement = document.getElementById(
         IS_AUTO_SUPLEMENT_CHECKBOX_ID
     );
