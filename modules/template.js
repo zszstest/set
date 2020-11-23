@@ -1,4 +1,5 @@
 const Template = function () {
+    this.countdownElement = null;
     this.gameAreaContainer = null;
     this.gameAreaDivElement = null;
     this.gameAreaHeaderElement = null;
@@ -16,6 +17,7 @@ const Template = function () {
     this.isSetButtonElement = null;
     this.isWhereSetButtonElement = null;
 
+    this.countdownElement = document.getElementById(COUNTDOWN_ID);
     this.gameAreaDivElement = document.getElementById(GAME_AREA_DIV_ID);
     this.gameAreaHeaderElement = document.getElementById(GAME_AREA_HEADER_ID);
     this.gameSettingsDivElement = document.getElementById(GAME_SETTINGS_DIV_ID);

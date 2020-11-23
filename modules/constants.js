@@ -3,6 +3,8 @@ const CARD_CONTENTS = ["S", "O", "H"];
 const CARD_NUMBERS = [1, 2, 3];
 const CARD_SHAPES = ["D", "S", "P"];
 
+const COUNTDOWN_ID = "countdown";
+
 const GAME_AREA_ID = "gameArea";
 const GAME_AREA_HEADER_ID = "gameAreaHeader";
 const GAME_LEVELS_ID = "gameLevels";

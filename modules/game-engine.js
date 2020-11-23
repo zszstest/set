@@ -8,6 +8,8 @@ const GameEngine = function () {
     let selectedPlayerContainer = null;
     let players = null;
     let playersMap = new Map();
+    let currentCheckInterval = null;
+    let timeForCheck = null;
 
     /**
      * Initializes game engine.
@@ -27,6 +29,8 @@ const GameEngine = function () {
      * @returns void
      */
     this.startGame = (config) => {
+        timeForCheck = config.timeForCheck;
+
         createCheckButtonElement();
 
         createHeaderButtons(
@@ -126,39 +130,51 @@ const GameEngine = function () {
         this.checkButtonElement.classList.add("mr-1");
 
         this.checkButtonElement.addEventListener("click", (event) => {
+            clearCheckInterval();
+
             const isSet = checkSelectedCardsForSet();
 
-            maintainPlayer(selectedPlayerContainer, isSet);
-
-            if (isSet) {
-                selectedCards.forEach((card) => {
-                    cardsOnBoard = cardsOnBoard.filter(
-                        (cardOnBoard) => cardOnBoard !== card
-                    );
-                });
-
-                console.log(cardsOnBoard);
-
-                cardsOnBoard = [...cardsOnBoard, ...this.deck.handlingOut(3)];
-            }
-
-            storage.addHistoryItem(
-                this.getNow(),
-                JSON.parse(selectedPlayerContainer.getAttribute("data-player")),
-                selectedCards,
-                isSet
-            );
-
-            reset();
-
-            maintainGameAreaContainer();
-
-            if (currentSets.length === 0) {
-                this.finishGame();
-            }
+            handleCheckAction(isSet);
         });
 
         template.gameAreaHeaderElement.appendChild(this.checkButtonElement);
+    };
+
+    const handleCheckAction = (isSet) => {
+        maintainPlayer(selectedPlayerContainer, isSet);
+
+        if (isSet) {
+            selectedCards.forEach((card) => {
+                cardsOnBoard = cardsOnBoard.filter(
+                    (cardOnBoard) => cardOnBoard !== card
+                );
+            });
+
+            console.log(cardsOnBoard);
+
+            cardsOnBoard = [...cardsOnBoard, ...this.deck.handlingOut(3)];
+        }
+
+        storage.addHistoryItem(
+            this.getNow(),
+            JSON.parse(selectedPlayerContainer.getAttribute("data-player")),
+            selectedCards,
+            isSet
+        );
+
+        reset();
+
+        maintainGameAreaContainer();
+
+        if (currentSets.length === 0) {
+            this.finishGame();
+        }
+    };
+
+    const clearCheckInterval = () => {
+        clearInterval(currentCheckInterval);
+
+        template.countdownElement.innerHTML = "";
     };
 
     /**
@@ -170,14 +186,14 @@ const GameEngine = function () {
     const createGamePlayers = (playerNames, container) => {
         players = playerNames.map((playerName) => new Player(playerName));
 
-        players.forEach(player => playersMap.set(player.name, player));
+        players.forEach((player) => playersMap.set(player.name, player));
 
         createGamePlayerList(players, container, true);
     };
 
     const createGamePlayerList = (players, container, isAction) => {
         const playerElements = [];
-    
+
         players.forEach((player) => {
             const playerContainer = document.createElement("div");
 
@@ -187,13 +203,17 @@ const GameEngine = function () {
 
             if (isAction) {
                 playerContainer.addEventListener("click", (event) => {
+                    clearCheckInterval();
+
                     selectedPlayerContainer = playerContainer;
-    
+
                     playerElements.forEach((playerElement) => {
                         playerElement.classList.remove("selected");
                     });
-    
+
                     playerContainer.classList.add("selected");
+
+                    currentCheckInterval = setCheckingCountdown(1000, timeForCheck);
                 });
             }
 
@@ -216,7 +236,7 @@ const GameEngine = function () {
 
             playerElements.push(playerContainer);
 
-           container.appendChild(playerContainer);
+            container.appendChild(playerContainer);
         });
     };
 
@@ -277,9 +297,15 @@ const GameEngine = function () {
         template.gameAreaDivElement.classList.add("d-none");
         template.gameResultDivElement.classList.remove("d-none");
 
-        const sortedPlayers = Array.from(playersMap.values()).sort((a, b) => a.points < b.points ? 1 : -1);
+        const sortedPlayers = Array.from(playersMap.values()).sort((a, b) =>
+            a.points < b.points ? 1 : -1
+        );
 
-        createGamePlayerList(sortedPlayers, template.gameResultDivElement, false);
+        createGamePlayerList(
+            sortedPlayers,
+            template.gameResultDivElement,
+            false
+        );
     };
 
     /**
@@ -471,7 +497,7 @@ const GameEngine = function () {
         });
     };
 
-     /**
+    /**
      * Add event listener to isWhereSetButtonElement that will select the first
      * set of the currentSets and remove selection after a timeout.
      */
@@ -520,6 +546,18 @@ const GameEngine = function () {
                 }, 3000);
             }
         });
+    };
+
+    const setCheckingCountdown = (time, fromValue) => {
+        return setInterval(() => {
+            template.countdownElement.innerHTML = --fromValue;
+
+            if (fromValue === -1) {
+                clearCheckInterval();
+
+                handleCheckAction(false);
+            }
+        }, time);
     };
 
     this.init();
