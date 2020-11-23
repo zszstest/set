@@ -1,5 +1,25 @@
+.card-number {
+    font-size: x-large;
+    font-weight: 700;
+    left: 52px;
+    position: absolute;
+    text-align: center;
+    top: 85px;
+    width: 40px;
+}
+
+.container {
+    padding: 0;
+}
+
 .game-area-header {
     display: flex;
+}
+
+.game-area {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
 }
 
 .game-area .selected {
@@ -8,6 +28,7 @@
 }
 
 .game-area .card-container {
+    display: contents;
     height: 100%;
     margin: 0 10px;
 }
@@ -22,4 +43,29 @@
 
 .player div {
     margin: 10px 0;
+}
+
+.deck .game-card {
+    border: 1px solid #000;
+    border-radius: 6px;
+    height: 168px;
+    width: 110px;
+}
+
+.deck .game-card.first {
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+.deck .game-card.second {
+    position: absolute;
+    left: 15px;
+    top: 15px;
+}
+
+.deck .game-card.third {
+    position: absolute;
+    left: 30px;
+    top: 30px;
 }

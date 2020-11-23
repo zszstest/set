@@ -13,10 +13,12 @@ const Template = function () {
     this.isWhereSetCheckboxElement = null;
     this.playerInputsContainer = null;
     this.playerNumberElement = null;
+    this.cardNumberElement = null;
 
     this.isSetButtonElement = null;
     this.isWhereSetButtonElement = null;
 
+    this.cardNumberElement = document.getElementById(CARD_NUMBER_ID);
     this.countdownElement = document.getElementById(COUNTDOWN_ID);
     this.gameAreaDivElement = document.getElementById(GAME_AREA_DIV_ID);
     this.gameAreaHeaderElement = document.getElementById(GAME_AREA_HEADER_ID);

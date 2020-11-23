@@ -398,6 +398,7 @@ const GameEngine = function () {
      */
     const maintainGameAreaContainer = () => {
         template.gameAreaContainer.innerHTML = "";
+        template.cardNumberElement.innerHTML = this.deck.getDeckSize();
 
         cardsOnBoard.forEach((card) => {
             const cardElement = document.createElement("span");
@@ -429,7 +430,7 @@ const GameEngine = function () {
                 console.log("Selected Cards: ", selectedCards);
             });
 
-            img.setAttribute("width", 120);
+            img.setAttribute("width", 110);
             img.setAttribute("src", "images/" + card.imageUrl);
             img.setAttribute("data-card", JSON.stringify(card));
 
