@@ -6,6 +6,7 @@ const template = new Template();
 
 const storage = new Storage();
 const settings = new Settings();
+const rank = new Rank();
 const gameEngine = new GameEngine();
 
 const start = function () {

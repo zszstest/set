@@ -10,6 +10,7 @@ const GameEngine = function () {
     let playersMap = new Map();
     let currentCheckInterval = null;
     let timeForCheck = null;
+    let gameMode = null;
 
     /**
      * Initializes game engine.
@@ -29,6 +30,7 @@ const GameEngine = function () {
      * @returns void
      */
     this.startGame = (config) => {
+        gameMode = config.gameMode;
         timeForCheck = config.timeForCheck;
 
         createCheckButtonElement();
@@ -47,7 +49,7 @@ const GameEngine = function () {
 
         maintainGameAreaContainer();
 
-        storage.startGame(this.getNow(), players);
+        storage.startGame(this.getNow(), players, gameMode);
     };
 
     /**
@@ -437,9 +439,9 @@ const GameEngine = function () {
             cardElement.appendChild(img);
 
             template.gameAreaContainer.appendChild(cardElement);
-
-            currentSets = findSets(generate3Cards(Array.from(cardsOnBoard)));
         });
+
+        currentSets = findSets(generate3Cards(Array.from(cardsOnBoard)));
     };
 
     const registerKeyUpEvent = () => {

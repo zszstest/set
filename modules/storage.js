@@ -1,12 +1,10 @@
 var Storage = function () {
-    const HISTORIES = "histories";
-
     let history = null;
 
-    this.startGame = (startTime, players) => {
-        history = new History(startTime, players);
+    this.addHistoryItem = (actionTime, player, action, result) => {
+        const historyItem = new HistoryItem(actionTime, player, action, result);
 
-        console.log("Game started at ", new Date(startTime));
+        history.items.push(historyItem);
     };
 
     this.finishGame = (endTime) => {
@@ -23,19 +21,19 @@ var Storage = function () {
         return history;
     };
 
-    this.addHistoryItem = (actionTime, player, action, result) => {
-        const historyItem = new HistoryItem(actionTime, player, action, result);
+    this.read = (name) => {
+        const data = localStorage.getItem(name);
 
-        history.items.push(historyItem);
+        return data ? JSON.parse(data) : null;
     };
 
     this.save = (name, data) => {
         localStorage.setItem(name, JSON.stringify(data));
     };
 
-    this.read = (name) => {
-        const data = localStorage.getItem(name);
+    this.startGame = (startTime, players, gameMode) => {
+        history = new History(startTime, players, gameMode);
 
-        return data ? JSON.parse(data) : null;
+        console.log("Game started at ", new Date(startTime));
     };
 };

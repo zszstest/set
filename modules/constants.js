@@ -28,3 +28,6 @@ const GAME_MODE_COMPETITION = "competition";
 const GAME_SETTINGS_DIV_ID = "gameSettingsDiv";
 const GAME_AREA_DIV_ID = "gameAreaDiv";
 const GAME_RESULT_DIV_ID = "gameResultDiv";
+const GAME_RANK_ID = "gameRank";
+
+const HISTORIES = "histories";
