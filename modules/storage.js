@@ -31,8 +31,8 @@ var Storage = function () {
         localStorage.setItem(name, JSON.stringify(data));
     };
 
-    this.startGame = (startTime, players, gameMode) => {
-        history = new History(startTime, players, gameMode);
+    this.startGame = (startTime, players, gameMode, gameLevel) => {
+        history = new History(startTime, players, gameMode, gameLevel);
 
         console.log("Game started at ", new Date(startTime));
     };

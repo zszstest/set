@@ -11,6 +11,7 @@ const GameEngine = function () {
     let currentCheckInterval = null;
     let timeForCheck = null;
     let gameMode = null;
+    let gameLevel = null;
 
     /**
      * Initializes game engine.
@@ -31,6 +32,7 @@ const GameEngine = function () {
      */
     this.startGame = (config) => {
         gameMode = config.gameMode;
+        gameLevel = config.gameLevel;
         timeForCheck = config.timeForCheck;
 
         createCheckButtonElement();
@@ -49,7 +51,7 @@ const GameEngine = function () {
 
         maintainGameAreaContainer();
 
-        storage.startGame(this.getNow(), players, gameMode);
+        storage.startGame(this.getNow(), players, gameMode, gameLevel);
     };
 
     /**

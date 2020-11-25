@@ -1,7 +1,8 @@
-var History = function (startTime, players, gameMode) {
+var History = function (startTime, players, gameMode, gameLevel) {
     this.startTime = startTime;
     this.players = players;
     this.gameMode = gameMode;
+    this.gameLevel = gameLevel;
     this.endTime = null;
     this.items = [];
 };
