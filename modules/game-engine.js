@@ -170,7 +170,7 @@ const GameEngine = function () {
 
         maintainGameAreaContainer();
 
-        if (currentSets.length === 0) {
+        if (currentSets.length === 0 && this.deck.getDeckSize() === 0) {
             this.finishGame();
         }
     };
