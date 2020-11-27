@@ -12,6 +12,7 @@ const GameEngine = function () {
     let timeForCheck = null;
     let gameMode = null;
     let gameLevel = null;
+    let isAutoSupplementButton = false;
 
     /**
      * Initializes game engine.
@@ -34,6 +35,7 @@ const GameEngine = function () {
         gameMode = config.gameMode;
         gameLevel = config.gameLevel;
         timeForCheck = config.timeForCheck;
+        isAutoSupplementButton = config.isAutoSupplementButton;
 
         createCheckButtonElement();
 
@@ -172,6 +174,8 @@ const GameEngine = function () {
 
         if (currentSets.length === 0 && this.deck.getDeckSize() === 0) {
             this.finishGame();
+        } else if (currentSets.length === 0 && isAutoSupplementButton) {
+            template.isAutoSupplementButtonElement.removeAttribute("disabled");
         }
     };
 
@@ -217,7 +221,10 @@ const GameEngine = function () {
 
                     playerContainer.classList.add("selected");
 
-                    currentCheckInterval = setCheckingCountdown(1000, timeForCheck);
+                    currentCheckInterval = setCheckingCountdown(
+                        1000,
+                        timeForCheck
+                    );
                 });
             }
 
@@ -280,16 +287,12 @@ const GameEngine = function () {
             template.isAutoSupplementButtonElement.addEventListener(
                 "click",
                 (event) => {
-                    if (currentSets.length > 0) {
-                        reset();
+                    cardsOnBoard = [
+                        ...cardsOnBoard,
+                        ...this.deck.handlingOut(3),
+                    ];
 
-                        cardsOnBoard = [
-                            ...cardsOnBoard,
-                            ...this.deck.handlingOut(3),
-                        ];
-
-                        maintainGameAreaContainer();
-                    }
+                    maintainGameAreaContainer();
                 }
             );
         }
@@ -401,6 +404,16 @@ const GameEngine = function () {
      * Update game area when the application is initialized and every cases when players find a set.
      */
     const maintainGameAreaContainer = () => {
+        currentSets = findSets(generate3Cards(Array.from(cardsOnBoard)));
+
+        while (
+            currentSets.length === 0 &&
+            !isAutoSupplementButton &&
+            this.deck.getDeckSize() > 0
+        ) {
+            cardsOnBoard = [...cardsOnBoard, ...this.deck.handlingOut(3)];
+        }
+
         template.gameAreaContainer.innerHTML = "";
         template.cardNumberElement.innerHTML = this.deck.getDeckSize();
 
@@ -442,8 +455,6 @@ const GameEngine = function () {
 
             template.gameAreaContainer.appendChild(cardElement);
         });
-
-        currentSets = findSets(generate3Cards(Array.from(cardsOnBoard)));
     };
 
     const registerKeyUpEvent = () => {
