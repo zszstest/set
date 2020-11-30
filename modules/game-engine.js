@@ -13,6 +13,7 @@ const GameEngine = function () {
     let gameMode = null;
     let gameLevel = null;
     let isAutoSupplementButton = false;
+    let isSingleMode = false;
 
     /**
      * Initializes game engine.
@@ -36,6 +37,7 @@ const GameEngine = function () {
         gameLevel = config.gameLevel;
         timeForCheck = config.timeForCheck;
         isAutoSupplementButton = config.isAutoSupplementButton;
+        isSingleMode = config.playerNames.length === 1;
 
         createCheckButtonElement();
 
@@ -45,7 +47,15 @@ const GameEngine = function () {
             config.isAutoSupplementButton
         );
 
-        createGamePlayers(config.playerNames, template.gamePlayersContainer);
+        createGamePlayers(
+            config.playerNames,
+            template.gamePlayersContainer,
+            isSingleMode
+        );
+
+        if (isSingleMode) {
+            selectPlayer(0);
+        }
 
         this.deck = new Deck(config.gameLevel);
 
@@ -168,7 +178,7 @@ const GameEngine = function () {
             isSet
         );
 
-        reset();
+        reset(isSingleMode);
 
         maintainGameAreaContainer();
 
@@ -191,15 +201,20 @@ const GameEngine = function () {
      * @param {*} playerNames
      * @returns void
      */
-    const createGamePlayers = (playerNames, container) => {
+    const createGamePlayers = (playerNames, container, isSingleMode) => {
         players = playerNames.map((playerName) => new Player(playerName));
 
         players.forEach((player) => playersMap.set(player.name, player));
 
-        createGamePlayerList(players, container, true);
+        createGamePlayerList(players, container, true, isSingleMode);
     };
 
-    const createGamePlayerList = (players, container, isAction) => {
+    const createGamePlayerList = (
+        players,
+        container,
+        isAction,
+        isSingleMode
+    ) => {
         const playerElements = [];
 
         players.forEach((player) => {
@@ -209,7 +224,7 @@ const GameEngine = function () {
             playerContainer.classList.add("player");
             playerContainer.setAttribute("data-player", JSON.stringify(player));
 
-            if (isAction) {
+            if (isAction && !isSingleMode) {
                 playerContainer.addEventListener("click", (event) => {
                     clearCheckInterval();
 
@@ -468,20 +483,25 @@ const GameEngine = function () {
                     }
                 );
 
-                selectedPlayerContainer =
-                    template.gamePlayersContainer.children[index];
-
-                selectedPlayerContainer.classList.add("selected");
+                selectPlayer(index);
             }
         });
+    };
+
+    const selectPlayer = (index) => {
+        selectedPlayerContainer = template.gamePlayersContainer.children[index];
+
+        selectedPlayerContainer.classList.add("selected");
     };
 
     /**
      *
      */
-    const reset = () => {
-        selectedPlayerContainer.classList.remove("selected");
-        selectedPlayerContainer = null;
+    const reset = (isSingleMode) => {
+        if (!isSingleMode) {
+            selectedPlayerContainer.classList.remove("selected");
+            selectedPlayerContainer = null;
+        }
 
         this.checkButtonElement.setAttribute("disabled", "disabled");
 
